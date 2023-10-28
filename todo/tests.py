@@ -4,12 +4,16 @@ from django.urls import reverse
 from .models import Dog, Breed
 from django.contrib.auth.models import User
 from django.test import TestCase
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 # Obtain the jwt of an admin user
 @pytest.fixture()
 @pytest.mark.django_db(transaction=True)
 def test_token():
-    admin = APIClient().post(reverse('auth_register'), data={"username":"admin", "password":"$Ken2005*", "password2":"$Ken2005*", "email":"admin@localhost.com", "first_name":"admin", "last_name":"admin"})
+    admin = APIClient().post(reverse('auth_register'), data={"username":"admin", "password":os.environ.get("ADMIN_PASSWORD"), "password2":os.environ.get("ADMIN_PASSWORD"), "email":"admin@localhost.com", "first_name":"admin", "last_name":"admin"})
     admin_token = APIClient().post(reverse('token_obtain_pair'), data={"username":"admin", "password":"$Ken2005*"}, format="json")
     admin_user = User.objects.get(username="admin")
     token = admin_token.getvalue().decode()[0:-1].rsplit(":")[2].replace('"', '')
